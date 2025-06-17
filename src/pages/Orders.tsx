@@ -1,61 +1,26 @@
 import React, { useState } from 'react';
-import { Clock, CheckCircle, Truck, MapPin, Phone, Star } from 'lucide-react';
+import { Clock, CheckCircle, Truck, MapPin, Phone, Star, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 
 const Orders: React.FC = () => {
+  const { user } = useAuth();
+  const { getCustomerOrders } = useCart();
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
 
-  // Mock order data
-  const orders = [
-    {
-      id: 'ORD-2024-001',
-      date: '2024-01-15',
-      status: 'delivered',
-      total: 45.67,
-      items: [
-        { name: 'Lamb Biryani', quantity: 2, price: 18.99 },
-        { name: 'Fresh Juice', quantity: 1, price: 4.99 }
-      ],
-      delivery: {
-        address: 'Mogadishu, Somalia',
-        estimatedTime: 'Delivered at 2:30 PM'
-      }
-    },
-    {
-      id: 'ORD-2024-002',
-      date: '2024-01-16',
-      status: 'preparing',
-      total: 32.14,
-      items: [
-        { name: 'Mixed Grill Platter', quantity: 1, price: 24.99 },
-        { name: 'Traditional Tea', quantity: 2, price: 3.99 }
-      ],
-      delivery: {
-        address: 'Mogadishu, Somalia',
-        estimatedTime: '25 minutes'
-      }
-    },
-    {
-      id: 'ORD-2024-003',
-      date: '2024-01-17',
-      status: 'on-the-way',
-      total: 28.49,
-      items: [
-        { name: 'Chicken Curry', quantity: 1, price: 16.99 },
-        { name: 'Baklava', quantity: 2, price: 6.99 }
-      ],
-      delivery: {
-        address: 'Mogadishu, Somalia',
-        estimatedTime: '10 minutes'
-      }
-    }
-  ];
+  // Get orders for the current customer
+  const customerOrders = user ? getCustomerOrders(user.email) : [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'preparing':
+      case 'pending':
         return <Clock className="w-5 h-5 text-yellow-500" />;
+      case 'preparing':
+        return <Clock className="w-5 h-5 text-blue-500" />;
+      case 'ready':
+        return <AlertCircle className="w-5 h-5 text-orange-500" />;
       case 'on-the-way':
-        return <Truck className="w-5 h-5 text-blue-500" />;
+        return <Truck className="w-5 h-5 text-purple-500" />;
       case 'delivered':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       default:
@@ -65,8 +30,12 @@ const Orders: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
+      case 'pending':
+        return 'Order Received';
       case 'preparing':
         return 'Preparing';
+      case 'ready':
+        return 'Ready for Pickup/Delivery';
       case 'on-the-way':
         return 'On the way';
       case 'delivered':
@@ -78,16 +47,41 @@ const Orders: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'preparing':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'on-the-way':
+      case 'preparing':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'ready':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
+      case 'on-the-way':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
       case 'delivered':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen pt-20 bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            Please Login
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-8">
+            You need to login to view your orders.
+          </p>
+          <a
+            href="/login"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200"
+          >
+            Login Now
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-20 bg-gray-50 dark:bg-gray-900">
@@ -98,13 +92,13 @@ const Orders: React.FC = () => {
             My Orders
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Track your current and past orders
+            Welcome {user.name}! Track your current and past orders
           </p>
         </div>
 
         {/* Orders List */}
         <div className="space-y-6">
-          {orders.map((order) => (
+          {customerOrders.map((order) => (
             <div
               key={order.id}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden"
@@ -118,7 +112,10 @@ const Orders: React.FC = () => {
                         Order {order.id}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Placed on {new Date(order.date).toLocaleDateString()}
+                        Placed on {order.createdAt.toLocaleDateString()} at {order.createdAt.toLocaleTimeString()}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {order.orderType === 'delivery' ? '🚚 Delivery' : '🍽️ Dine In'}
                       </p>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-2 ${getStatusColor(order.status)}`}>
@@ -157,7 +154,7 @@ const Orders: React.FC = () => {
                                 {item.name}
                               </p>
                               <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Quantity: {item.quantity}
+                                Quantity: {item.quantity} × ${item.price.toFixed(2)}
                               </p>
                             </div>
                             <p className="font-semibold text-gray-900 dark:text-white">
@@ -165,26 +162,36 @@ const Orders: React.FC = () => {
                             </p>
                           </div>
                         ))}
+                        <div className="border-t border-gray-200 dark:border-gray-600 pt-3 mt-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-lg font-bold text-gray-900 dark:text-white">Total:</span>
+                            <span className="text-lg font-bold text-gray-900 dark:text-white">
+                              ${order.total.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Delivery Info */}
+                    {/* Delivery/Order Info */}
                     <div>
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Delivery Information
+                        {order.orderType === 'delivery' ? 'Delivery Information' : 'Order Information'}
                       </h4>
                       <div className="space-y-4">
-                        <div className="flex items-start space-x-3">
-                          <MapPin className="w-5 h-5 text-gray-400 mt-1" />
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              Delivery Address
-                            </p>
-                            <p className="text-gray-600 dark:text-gray-300">
-                              {order.delivery.address}
-                            </p>
+                        {order.orderType === 'delivery' && order.address && (
+                          <div className="flex items-start space-x-3">
+                            <MapPin className="w-5 h-5 text-gray-400 mt-1" />
+                            <div>
+                              <p className="font-medium text-gray-900 dark:text-white">
+                                Delivery Address
+                              </p>
+                              <p className="text-gray-600 dark:text-gray-300">
+                                {order.address}
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                         <div className="flex items-start space-x-3">
                           <Clock className="w-5 h-5 text-gray-400 mt-1" />
                           <div>
@@ -192,7 +199,21 @@ const Orders: React.FC = () => {
                               {order.status === 'delivered' ? 'Delivered' : 'Estimated Time'}
                             </p>
                             <p className="text-gray-600 dark:text-gray-300">
-                              {order.delivery.estimatedTime}
+                              {order.status === 'delivered' 
+                                ? `Delivered on ${order.createdAt.toLocaleDateString()}`
+                                : order.estimatedTime || '30-45 minutes'
+                              }
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <Phone className="w-5 h-5 text-gray-400 mt-1" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              Contact Number
+                            </p>
+                            <p className="text-gray-600 dark:text-gray-300">
+                              {order.customerPhone}
                             </p>
                           </div>
                         </div>
@@ -225,7 +246,7 @@ const Orders: React.FC = () => {
         </div>
 
         {/* Empty State */}
-        {orders.length === 0 && (
+        {customerOrders.length === 0 && (
           <div className="text-center py-16">
             <Clock className="w-24 h-24 text-gray-300 dark:text-gray-600 mx-auto mb-8" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
@@ -234,9 +255,12 @@ const Orders: React.FC = () => {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               When you place your first order, it will appear here.
             </p>
-            <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200">
+            <a
+              href="/menu"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200"
+            >
               Browse Menu
-            </button>
+            </a>
           </div>
         )}
 
@@ -251,11 +275,14 @@ const Orders: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-full font-semibold transition-colors duration-200 flex items-center justify-center space-x-2">
               <Phone className="w-5 h-5" />
-              <span>Call Support</span>
+              <span>Call Support: +252611777223</span>
             </button>
-            <button className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 px-6 py-3 rounded-full font-semibold transition-colors duration-200">
+            <a
+              href="/contact"
+              className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 px-6 py-3 rounded-full font-semibold transition-colors duration-200"
+            >
               Send Message
-            </button>
+            </a>
           </div>
         </div>
       </div>

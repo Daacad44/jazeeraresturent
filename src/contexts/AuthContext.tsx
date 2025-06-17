@@ -26,23 +26,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Staff accounts database
   const staffAccounts = {
-    // Admin
-    'admin@jazeera.com': { password: 'admin123', role: 'admin', name: 'Admin', id: 'admin-1' },
+    // Main Admin (You)
+    'admin@jazeera.com': { password: 'admin123', role: 'admin', name: 'Main Admin', id: 'admin-1' },
     
-    // Cashiers
-    'ahmed.cashier@jazeera.com': { password: 'cash123', role: 'cashier', name: 'Ahmed Hassan', id: 'cashier-1', staffId: '1' },
-    'fatima.cashier@jazeera.com': { password: 'cash123', role: 'cashier', name: 'Fatima Ali', id: 'cashier-2', staffId: '2' },
-    'omar.cashier@jazeera.com': { password: 'cash123', role: 'cashier', name: 'Omar Mohamed', id: 'cashier-3', staffId: '3' },
-    'amina.cashier@jazeera.com': { password: 'cash123', role: 'cashier', name: 'Amina Said', id: 'cashier-4', staffId: '4' },
+    // Delivery Users
+    'delivery1@jazeera.com': { password: 'delivery123', role: 'driver', name: 'Ahmed Delivery', id: 'driver-1', staffId: '1' },
+    'delivery2@jazeera.com': { password: 'delivery123', role: 'driver', name: 'Omar Delivery', id: 'driver-2', staffId: '2' },
     
-    // Waiters
-    'hassan.waiter@jazeera.com': { password: 'wait123', role: 'waiter', name: 'Hassan Omar', id: 'waiter-1', staffId: '1' },
-    'mariam.waiter@jazeera.com': { password: 'wait123', role: 'waiter', name: 'Mariam Ahmed', id: 'waiter-2', staffId: '2' },
-    'ali.waiter@jazeera.com': { password: 'wait123', role: 'waiter', name: 'Ali Hassan', id: 'waiter-3', staffId: '3' },
+    // Cashier Users
+    'cashier1@jazeera.com': { password: 'cashier123', role: 'cashier', name: 'Fatima Cashier', id: 'cashier-1', staffId: '1' },
+    'cashier2@jazeera.com': { password: 'cashier123', role: 'cashier', name: 'Hassan Cashier', id: 'cashier-2', staffId: '2' },
     
-    // Drivers
-    'mohamed.driver@jazeera.com': { password: 'driv123', role: 'driver', name: 'Mohamed Ali', id: 'driver-1', staffId: '1' },
-    'abdi.driver@jazeera.com': { password: 'driv123', role: 'driver', name: 'Abdi Rahman', id: 'driver-2', staffId: '2' }
+    // Waiter Users
+    'waiter1@jazeera.com': { password: 'waiter123', role: 'waiter', name: 'Mariam Waiter', id: 'waiter-1', staffId: '1' },
+    'waiter2@jazeera.com': { password: 'waiter123', role: 'waiter', name: 'Ali Waiter', id: 'waiter-2', staffId: '2' },
+    
+    // Customer Users
+    'customer1@jazeera.com': { password: 'customer123', role: 'customer', name: 'Ahmed Customer', id: 'customer-1' },
+    'customer2@jazeera.com': { password: 'customer123', role: 'customer', name: 'Amina Customer', id: 'customer-2' }
   };
 
   useEffect(() => {
@@ -68,11 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return true;
     }
     
-    // Fallback for customer accounts
+    // Fallback for any other customer accounts
     if (email.includes('@') && password.length >= 6) {
       const customerUser = {
-        id: '2',
-        name: 'Customer',
+        id: `customer-${Date.now()}`,
+        name: email.split('@')[0],
         email,
         role: 'customer' as const
       };

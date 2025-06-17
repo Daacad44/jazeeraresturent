@@ -15,8 +15,28 @@ export interface CartItem extends MenuItem {
   quantity: number;
 }
 
+export interface Order {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  total: number;
+  orderType: 'delivery' | 'dine-in';
+  address?: string;
+  status: 'pending' | 'preparing' | 'ready' | 'on-the-way' | 'delivered';
+  createdAt: Date;
+  estimatedTime?: string;
+}
+
 interface CartContextType {
   items: CartItem[];
+  orders: Order[];
   addToCart: (item: MenuItem) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -32,25 +52,41 @@ interface CartContextType {
     address?: string;
     orderType: 'delivery' | 'dine-in';
   }) => Promise<string>;
+  getCustomerOrders: (customerEmail: string) => Order[];
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const { recordOrder } = useAnalytics();
   const { addDeliveryOrder } = useDelivery();
 
   useEffect(() => {
     const savedCart = localStorage.getItem('jazeera-cart');
+    const savedOrders = localStorage.getItem('jazeera-orders');
+    
     if (savedCart) {
       setItems(JSON.parse(savedCart));
+    }
+    
+    if (savedOrders) {
+      const parsedOrders = JSON.parse(savedOrders).map((order: any) => ({
+        ...order,
+        createdAt: new Date(order.createdAt)
+      }));
+      setOrders(parsedOrders);
     }
   }, []);
 
   useEffect(() => {
     localStorage.setItem('jazeera-cart', JSON.stringify(items));
   }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem('jazeera-orders', JSON.stringify(orders));
+  }, [orders]);
 
   const addToCart = (item: MenuItem) => {
     setItems(currentItems => {
@@ -116,9 +152,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       price: item.price
     }));
 
+    // Create order object
+    const newOrder: Order = {
+      id: orderId,
+      customerId: `CUST-${customerInfo.email}`,
+      customerName: customerInfo.name,
+      customerEmail: customerInfo.email,
+      customerPhone: customerInfo.phone,
+      items: orderItems,
+      total: getCartTotalWithTax(),
+      orderType: customerInfo.orderType,
+      address: customerInfo.address,
+      status: 'pending',
+      createdAt: new Date(),
+      estimatedTime: customerInfo.orderType === 'delivery' ? '30-45 minutes' : '15-20 minutes'
+    };
+
+    // Add to orders list
+    setOrders(prev => [...prev, newOrder]);
+
     // Record order in analytics
     recordOrder({
-      customerId: `CUST-${customerInfo.email}`,
+      customerId: newOrder.customerId,
       customerName: customerInfo.name,
       email: customerInfo.email,
       items: orderItems,
@@ -146,9 +201,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return orderId;
   };
 
+  const getCustomerOrders = (customerEmail: string) => {
+    return orders.filter(order => order.customerEmail === customerEmail);
+  };
+
   return (
     <CartContext.Provider value={{
       items,
+      orders,
       addToCart,
       removeFromCart,
       updateQuantity,
@@ -157,7 +217,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       getCartTotalWithTax,
       getTaxAmount,
       getItemCount,
-      checkout
+      checkout,
+      getCustomerOrders
     }}>
       {children}
     </CartContext.Provider>

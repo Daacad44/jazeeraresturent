@@ -164,14 +164,15 @@ const Login: React.FC = () => {
           {isLogin && (
             <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">
-                Demo Credentials:
+                Demo User Accounts:
               </h4>
               <div className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
-                <p><strong>Admin:</strong> admin@jazeera.com / admin123</p>
-                <p><strong>Cashier:</strong> ahmed.cashier@jazeera.com / cash123</p>
-                <p><strong>Waiter:</strong> hassan.waiter@jazeera.com / wait123</p>
-                <p><strong>Driver:</strong> mohamed.driver@jazeera.com / driv123</p>
-                <p><strong>Customer:</strong> any@email.com / 123456</p>
+                <p><strong>🔑 Main Admin (You):</strong> admin@jazeera.com / admin123</p>
+                <p><strong>🚚 Delivery User:</strong> delivery1@jazeera.com / delivery123</p>
+                <p><strong>💰 Cashier User:</strong> cashier1@jazeera.com / cashier123</p>
+                <p><strong>🍽️ Waiter User:</strong> waiter1@jazeera.com / waiter123</p>
+                <p><strong>👤 Customer User:</strong> customer1@jazeera.com / customer123</p>
+                <p><strong>📧 Any Customer:</strong> any@email.com / 123456</p>
               </div>
             </div>
           )}
