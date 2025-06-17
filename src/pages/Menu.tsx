@@ -16,7 +16,7 @@ const Menu: React.FC = () => {
       name: 'Burger',
       price: 2,
       description: 'Burger chiken waxaa laga sameeyay chicken',
-      image: 'https://www.pinterest.com/pin/56154326598157662/',
+      image: 'https://www.pinterest.com/pin/56154326598157662',
       category: 'Appetizers'
     },
     {
