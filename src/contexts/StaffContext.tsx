@@ -11,6 +11,7 @@ export interface Cashier {
   ordersProcessed: number;
   startTime: string;
   endTime: string;
+  password?: string;
 }
 
 export interface Waiter {
@@ -23,6 +24,7 @@ export interface Waiter {
   tablesServed: number;
   tips: number;
   shift: 'morning' | 'afternoon' | 'evening' | 'night';
+  password?: string;
 }
 
 export interface Driver {
@@ -37,6 +39,9 @@ export interface Driver {
   totalDeliveries: number;
   rating: number;
   status: 'available' | 'busy' | 'offline';
+  password?: string;
+  emergencyContact?: string;
+  address?: string;
 }
 
 interface StaffContextType {
@@ -49,6 +54,12 @@ interface StaffContextType {
   updateCashierStatus: (id: string, isActive: boolean) => void;
   updateWaiterStatus: (id: string, isActive: boolean) => void;
   updateDriverStatus: (id: string, status: Driver['status']) => void;
+  removeCashier: (id: string) => void;
+  removeWaiter: (id: string) => void;
+  removeDriver: (id: string) => void;
+  updateCashier: (id: string, updates: Partial<Cashier>) => void;
+  updateWaiter: (id: string, updates: Partial<Waiter>) => void;
+  updateDriver: (id: string, updates: Partial<Driver>) => void;
   assignDeliveryToDriver: (driverId: string, deliveryId: string) => void;
   completeDelivery: (driverId: string, deliveryId: string) => void;
 }
@@ -67,7 +78,8 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       totalSales: 2450.75,
       ordersProcessed: 45,
       startTime: '08:00',
-      endTime: '16:00'
+      endTime: '16:00',
+      password: 'cashier123'
     },
     {
       id: '2',
@@ -79,7 +91,8 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       totalSales: 1890.50,
       ordersProcessed: 38,
       startTime: '12:00',
-      endTime: '20:00'
+      endTime: '20:00',
+      password: 'cashier123'
     },
     {
       id: '3',
@@ -91,7 +104,8 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       totalSales: 3200.25,
       ordersProcessed: 52,
       startTime: '16:00',
-      endTime: '00:00'
+      endTime: '00:00',
+      password: 'cashier123'
     },
     {
       id: '4',
@@ -103,7 +117,8 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       totalSales: 1650.00,
       ordersProcessed: 28,
       startTime: '20:00',
-      endTime: '04:00'
+      endTime: '04:00',
+      password: 'cashier123'
     }
   ]);
 
@@ -117,7 +132,8 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isActive: true,
       tablesServed: 12,
       tips: 85.50,
-      shift: 'morning'
+      shift: 'morning',
+      password: 'waiter123'
     },
     {
       id: '2',
@@ -128,7 +144,8 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isActive: true,
       tablesServed: 15,
       tips: 120.75,
-      shift: 'afternoon'
+      shift: 'afternoon',
+      password: 'waiter123'
     },
     {
       id: '3',
@@ -139,7 +156,8 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isActive: false,
       tablesServed: 8,
       tips: 65.25,
-      shift: 'evening'
+      shift: 'evening',
+      password: 'waiter123'
     }
   ]);
 
@@ -155,7 +173,10 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       currentDeliveries: ['DEL-001'],
       totalDeliveries: 156,
       rating: 4.8,
-      status: 'busy'
+      status: 'busy',
+      password: 'driver123',
+      emergencyContact: '+252611777299',
+      address: 'Hodan District, Mogadishu'
     },
     {
       id: '2',
@@ -168,7 +189,10 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       currentDeliveries: [],
       totalDeliveries: 203,
       rating: 4.9,
-      status: 'available'
+      status: 'available',
+      password: 'driver123',
+      emergencyContact: '+252611777298',
+      address: 'Wadajir District, Mogadishu'
     }
   ]);
 
@@ -244,6 +268,36 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     ));
   };
 
+  const removeCashier = (id: string) => {
+    setCashiers(prev => prev.filter(cashier => cashier.id !== id));
+  };
+
+  const removeWaiter = (id: string) => {
+    setWaiters(prev => prev.filter(waiter => waiter.id !== id));
+  };
+
+  const removeDriver = (id: string) => {
+    setDrivers(prev => prev.filter(driver => driver.id !== id));
+  };
+
+  const updateCashier = (id: string, updates: Partial<Cashier>) => {
+    setCashiers(prev => prev.map(cashier =>
+      cashier.id === id ? { ...cashier, ...updates } : cashier
+    ));
+  };
+
+  const updateWaiter = (id: string, updates: Partial<Waiter>) => {
+    setWaiters(prev => prev.map(waiter =>
+      waiter.id === id ? { ...waiter, ...updates } : waiter
+    ));
+  };
+
+  const updateDriver = (id: string, updates: Partial<Driver>) => {
+    setDrivers(prev => prev.map(driver =>
+      driver.id === id ? { ...driver, ...updates } : driver
+    ));
+  };
+
   const assignDeliveryToDriver = (driverId: string, deliveryId: string) => {
     setDrivers(prev => prev.map(driver =>
       driver.id === driverId 
@@ -280,6 +334,12 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       updateCashierStatus,
       updateWaiterStatus,
       updateDriverStatus,
+      removeCashier,
+      removeWaiter,
+      removeDriver,
+      updateCashier,
+      updateWaiter,
+      updateDriver,
       assignDeliveryToDriver,
       completeDelivery
     }}>

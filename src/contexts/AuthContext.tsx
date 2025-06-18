@@ -24,26 +24,55 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Staff accounts database
-  const staffAccounts = {
-    // Main Admin (You)
-    'admin@jazeera.com': { password: 'admin123', role: 'admin', name: 'Main Admin', id: 'admin-1' },
-    
-    // Delivery Users
-    'delivery1@jazeera.com': { password: 'delivery123', role: 'driver', name: 'Ahmed Delivery', id: 'driver-1', staffId: '1' },
-    'delivery2@jazeera.com': { password: 'delivery123', role: 'driver', name: 'Omar Delivery', id: 'driver-2', staffId: '2' },
-    
-    // Cashier Users
-    'cashier1@jazeera.com': { password: 'cashier123', role: 'cashier', name: 'Fatima Cashier', id: 'cashier-1', staffId: '1' },
-    'cashier2@jazeera.com': { password: 'cashier123', role: 'cashier', name: 'Hassan Cashier', id: 'cashier-2', staffId: '2' },
-    
-    // Waiter Users
-    'waiter1@jazeera.com': { password: 'waiter123', role: 'waiter', name: 'Mariam Waiter', id: 'waiter-1', staffId: '1' },
-    'waiter2@jazeera.com': { password: 'waiter123', role: 'waiter', name: 'Ali Waiter', id: 'waiter-2', staffId: '2' },
-    
-    // Customer Users
-    'customer1@jazeera.com': { password: 'customer123', role: 'customer', name: 'Ahmed Customer', id: 'customer-1' },
-    'customer2@jazeera.com': { password: 'customer123', role: 'customer', name: 'Amina Customer', id: 'customer-2' }
+  // Staff accounts database - dynamically updated from StaffContext
+  const getStaffAccounts = () => {
+    const savedCashiers = JSON.parse(localStorage.getItem('jazeera-cashiers') || '[]');
+    const savedWaiters = JSON.parse(localStorage.getItem('jazeera-waiters') || '[]');
+    const savedDrivers = JSON.parse(localStorage.getItem('jazeera-drivers') || '[]');
+
+    const accounts: { [key: string]: any } = {
+      // Main Admin (You)
+      'admin@jazeera.com': { password: 'admin123', role: 'admin', name: 'Main Admin', id: 'admin-1' },
+    };
+
+    // Add cashiers
+    savedCashiers.forEach((cashier: any) => {
+      accounts[cashier.email] = {
+        password: cashier.password || 'cashier123',
+        role: 'cashier',
+        name: cashier.name,
+        id: `cashier-${cashier.id}`,
+        staffId: cashier.id
+      };
+    });
+
+    // Add waiters
+    savedWaiters.forEach((waiter: any) => {
+      accounts[waiter.email] = {
+        password: waiter.password || 'waiter123',
+        role: 'waiter',
+        name: waiter.name,
+        id: `waiter-${waiter.id}`,
+        staffId: waiter.id
+      };
+    });
+
+    // Add drivers
+    savedDrivers.forEach((driver: any) => {
+      accounts[driver.email] = {
+        password: driver.password || 'driver123',
+        role: 'driver',
+        name: driver.name,
+        id: `driver-${driver.id}`,
+        staffId: driver.id
+      };
+    });
+
+    // Default customer accounts
+    accounts['customer1@jazeera.com'] = { password: 'customer123', role: 'customer', name: 'Ahmed Customer', id: 'customer-1' };
+    accounts['customer2@jazeera.com'] = { password: 'customer123', role: 'customer', name: 'Amina Customer', id: 'customer-2' };
+
+    return accounts;
   };
 
   useEffect(() => {
@@ -54,8 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    // Get current staff accounts
+    const staffAccounts = getStaffAccounts();
+    
     // Check staff accounts first
-    const staffAccount = staffAccounts[email as keyof typeof staffAccounts];
+    const staffAccount = staffAccounts[email];
     if (staffAccount && staffAccount.password === password) {
       const loggedInUser = {
         id: staffAccount.id,
