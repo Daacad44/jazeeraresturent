@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { DeliveryProvider } from './contexts/DeliveryContext';
 import { AnalyticsProvider } from './contexts/AnalyticsContext';
 import { StaffProvider } from './contexts/StaffContext';
+import { DeliveryUserProvider } from './contexts/DeliveryUserContext';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
 import Home from './pages/Home';
@@ -22,6 +23,8 @@ import Analytics from './pages/Analytics';
 import CashierDashboard from './pages/CashierDashboard';
 import WaiterDashboard from './pages/WaiterDashboard';
 import DriverDashboard from './pages/DriverDashboard';
+import DeliveryUserLogin from './pages/DeliveryUserLogin';
+import DeliveryUserDashboard from './pages/DeliveryUserDashboard';
 
 function App() {
   return (
@@ -30,32 +33,36 @@ function App() {
         <AnalyticsProvider>
           <DeliveryProvider>
             <StaffProvider>
-              <CartProvider>
-                <Router>
-                  <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-                    <Header />
-                    <main>
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/menu" element={<Menu />} />
-                        <Route path="/services" element={<Services />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/cart" element={<Cart />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/orders" element={<Orders />} />
-                        <Route path="/admin" element={<Admin />} />
-                        <Route path="/delivery" element={<Delivery />} />
-                        <Route path="/analytics" element={<Analytics />} />
-                        <Route path="/cashier" element={<CashierDashboard />} />
-                        <Route path="/waiter" element={<WaiterDashboard />} />
-                        <Route path="/driver" element={<DriverDashboard />} />
-                      </Routes>
-                    </main>
-                    <Footer />
-                  </div>
-                </Router>
-              </CartProvider>
+              <DeliveryUserProvider>
+                <CartProvider>
+                  <Router>
+                    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+                      <Header />
+                      <main>
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/menu" element={<Menu />} />
+                          <Route path="/services" element={<Services />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/contact" element={<Contact />} />
+                          <Route path="/cart" element={<Cart />} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/orders" element={<Orders />} />
+                          <Route path="/admin" element={<Admin />} />
+                          <Route path="/delivery" element={<Delivery />} />
+                          <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/cashier" element={<CashierDashboard />} />
+                          <Route path="/waiter" element={<WaiterDashboard />} />
+                          <Route path="/driver" element={<DriverDashboard />} />
+                          <Route path="/delivery-login" element={<DeliveryUserLogin />} />
+                          <Route path="/delivery-dashboard" element={<DeliveryUserDashboard />} />
+                        </Routes>
+                      </main>
+                      <Footer />
+                    </div>
+                  </Router>
+                </CartProvider>
+              </DeliveryUserProvider>
             </StaffProvider>
           </DeliveryProvider>
         </AnalyticsProvider>

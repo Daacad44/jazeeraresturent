@@ -4,12 +4,14 @@ import { Menu, X, ShoppingCart, Sun, Moon, User, LogOut, Truck, BarChart3, Dolla
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDeliveryUser } from '../../contexts/DeliveryUserContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const { getItemCount } = useCart();
   const { user, logout, isAdmin, isCashier, isWaiter, isDriver } = useAuth();
+  const { currentDeliveryUser, logoutDeliveryUser } = useDeliveryUser();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -53,6 +55,15 @@ const Header: React.FC = () => {
     return 'Dashboard';
   };
 
+  const handleLogout = () => {
+    if (currentDeliveryUser) {
+      logoutDeliveryUser();
+      navigate('/');
+    } else if (user) {
+      logout();
+    }
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,8 +105,19 @@ const Header: React.FC = () => {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
+            {/* Delivery Manager Access */}
+            {!user && !currentDeliveryUser && (
+              <Link
+                to="/delivery-login"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-600 transition-colors duration-200 flex items-center space-x-2"
+              >
+                <Truck className="w-4 h-4" />
+                <span>Delivery Login</span>
+              </Link>
+            )}
+
             {/* Cart - Only show for customers */}
-            {(!user || user.role === 'customer') && (
+            {(!user || user.role === 'customer') && !currentDeliveryUser && (
               <Link
                 to="/cart"
                 className="relative p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
@@ -109,8 +131,34 @@ const Header: React.FC = () => {
               </Link>
             )}
 
-            {/* User Menu */}
-            {user ? (
+            {/* Delivery User Menu */}
+            {currentDeliveryUser && (
+              <div className="relative group">
+                <button className="flex items-center space-x-2 p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+                  <Truck className="w-4 h-4" />
+                  <span className="text-sm">{currentDeliveryUser.name}</span>
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <Link
+                    to="/delivery-dashboard"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+                  >
+                    <Truck className="w-4 h-4" />
+                    <span>Delivery Dashboard</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Regular User Menu */}
+            {user && !currentDeliveryUser && (
               <div className="relative group">
                 <button className="flex items-center space-x-2 p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                   {getRoleIcon()}
@@ -153,7 +201,7 @@ const Header: React.FC = () => {
                     </Link>
                   )}
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
                   >
                     <LogOut className="w-4 h-4" />
@@ -161,7 +209,10 @@ const Header: React.FC = () => {
                   </button>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {/* Login Button */}
+            {!user && !currentDeliveryUser && (
               <Link
                 to="/login"
                 className="bg-yellow-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-600 transition-colors duration-200"
