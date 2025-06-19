@@ -9,9 +9,8 @@ const Menu: React.FC = () => {
 
   const categories = ['All', 'Burger', 'Shuwarma', 'Bariis Baryani', 'Seafood', 'Desserts', 'Beverages', 'Appetizers', 'Grilled Items', 'Pasta & Rice', 'Traditional Dishes'];
 
-  const menuItems: MenuItem[] = [
-    // All menu items have been removed as requested
-  ];
+  // Empty menu items array - all items removed by their names
+  const menuItems: MenuItem[] = [];
 
   const filteredItems = menuItems.filter(item => {
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
@@ -62,7 +61,7 @@ const Menu: React.FC = () => {
               {category}
               {category !== 'All' && (
                 <span className="ml-2 bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 text-xs px-2 py-1 rounded-full">
-                  {menuItems.filter(item => item.category === category).length}
+                  0
                 </span>
               )}
             </button>
@@ -90,70 +89,37 @@ const Menu: React.FC = () => {
           </div>
         )}
 
-        {/* Menu Items */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className="relative">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                  {item.category}
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {item.name}
-                  </h3>
-                  <span className="text-lg font-bold text-yellow-600">
-                    ${item.price}
-                  </span>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {item.description}
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                    {item.category}
-                  </span>
-                  <button
-                    onClick={() => addToCart(item)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200 flex items-center space-x-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add to Cart</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
+        {/* Empty State - No Menu Items */}
         <div className="text-center py-16">
           <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-8">
             <span className="text-4xl">🍽️</span>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Menu Coming Soon
+            Menu Items Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
-            We're currently updating our menu with fresh new items. Please check back soon for our complete selection of delicious dishes.
+            We're currently updating our menu with fresh new items. All menu categories are ready and waiting for delicious new additions.
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
+          
+          {/* Category Overview */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-4xl mx-auto mb-8">
             {categories.slice(1).map((category) => (
-              <div key={category} className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
-                <div className="text-2xl font-bold text-yellow-600">0</div>
+              <div key={category} className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+                <div className="text-2xl font-bold text-yellow-600 mb-1">0</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">{category}</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">Items</div>
               </div>
             ))}
+          </div>
+
+          {/* Status Message */}
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 max-w-2xl mx-auto">
+            <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-2">
+              📋 Menu Status
+            </h3>
+            <p className="text-yellow-700 dark:text-yellow-400">
+              All menu categories have been cleared and are ready for new items. The menu infrastructure is fully functional and waiting for fresh content.
+            </p>
           </div>
         </div>
 
